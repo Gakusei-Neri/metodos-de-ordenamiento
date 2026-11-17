@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting Race | Cinco métodos</title>
+<style>
+:root{--bg:#080d18;--panel:#111b2d;--panel2:#0b1425;--line:#9bb4df22;--text:#edf4ff;--muted:#91a4c4;--cyan:#49d9f3;--violet:#a38bff;--green:#4fe0a2;--orange:#ffc16e;--pink:#ff739b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#1b2a50 0,transparent 38%),radial-gradient(ellipse at 90% 10%,#1b2146 0,transparent 32%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:1600px;margin:auto;padding:30px 24px 45px}header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:23px}.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);font-weight:800}h1{font-size:clamp(29px,4vw,45px);letter-spacing:-.045em;margin:8px 0;line-height:1.05}.subtitle{margin:0;color:var(--muted);line-height:1.55;max-width:800px}.brand{border:1px solid var(--line);background:#111a2b99;border-radius:13px;padding:11px 14px;font-size:11px;color:#c9d7f1;white-space:nowrap}
+.panel{background:linear-gradient(145deg,#17233bf2,#0e1728f5);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 50px #0004}.toolbar{padding:16px 18px;display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:17px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:750}input,select{background:#0a1425;color:var(--text);border:1px solid #354661;border-radius:9px;padding:10px 11px;font:inherit;outline:none}input{width:95px}select{min-width:140px}input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #49d9f31a}button{border:0;border-radius:10px;padding:11px 16px;font-weight:800;font-size:12px;cursor:pointer;transition:.15s}button:hover{filter:brightness(1.12);transform:translateY(-1px)}button:disabled{opacity:.4;cursor:not-allowed;transform:none}.primary{background:linear-gradient(110deg,#52dff3,#82e8ce);color:#06121d}.secondary{background:#263651;border:1px solid #405575;color:#e2edff}.sound{background:#1b2940;border:1px solid #344762;color:#c4d5f0}
+.compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.algo{padding:17px;min-width:0}.algo-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.algo-title{display:flex;align-items:center;gap:10px}.algo-title h2{font-size:16px;margin:0}.algo-title p{margin:3px 0 0;color:var(--muted);font-size:10px}.algo-mark{width:10px;height:30px;border-radius:8px;background:var(--cyan);box-shadow:0 0 15px #49d9f355}.selection .algo-mark{background:var(--violet);box-shadow:0 0 15px #a38bff55}.status{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px}.dot{height:7px;width:7px;border-radius:50%;background:#71819e}.dot.active{background:var(--green);box-shadow:0 0 0 4px #4fe0a222;animation:pulse 1s infinite}@keyframes pulse{50%{box-shadow:0 0 0 8px #4fe0a200}}
+.chart-wrap{height:300px;position:relative;overflow:hidden;border:1px solid #8da6d51b;border-radius:13px;background:linear-gradient(180deg,#0b1425,#0b1220 75%);padding:13px 9px 24px}.chart-wrap:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(25% - 1px),#9db4df12 25%);pointer-events:none}.chart{height:100%;display:flex;align-items:flex-end;justify-content:center;gap:2px;position:relative;z-index:1;perspective:800px}.bar-slot{height:100%;flex:1;min-width:1px;max-width:15px;display:flex;align-items:flex-end;position:relative}.bar{width:100%;height:5%;min-height:2px;position:relative;border-radius:2px 2px 0 0;background:linear-gradient(90deg,#247cba,#42d6ee 58%,#a4f4ff);box-shadow:inset 1px 0 0 #ffffff55,0 0 9px #38c8e522;transform:skewY(-2deg);transition:height .17s ease,filter .15s}.bar:before{content:"";position:absolute;left:1px;right:-3px;top:-4px;height:5px;background:linear-gradient(90deg,#67e7fa,#c4f8ff);transform:skewX(-42deg);border-radius:2px}.bar:after{content:"";position:absolute;top:0;right:-3px;width:3px;height:100%;background:linear-gradient(#226b9e,#123b65);transform:skewY(42deg);transform-origin:left top}.selection .bar{background:linear-gradient(90deg,#6852bb,#a38bff 58%,#d1c5ff);box-shadow:inset 1px 0 0 #ffffff55,0 0 9px #a38bff22}.selection .bar:before{background:linear-gradient(90deg,#a38bff,#e0d9ff)}.selection .bar:after{background:linear-gradient(#6651ae,#35275e)}.bar.compare{background:linear-gradient(90deg,#b07822,#ffca72 60%,#ffe5aa)!important;filter:brightness(1.25);box-shadow:0 0 15px #ffbd6955}.bar.swap{background:linear-gradient(90deg,#bd4770,#ff7298 60%,#ffc0d2)!important;box-shadow:0 0 17px #ff6f9166}.bar.minimum{background:linear-gradient(90deg,#168b68,#4fe0a2 60%,#b4ffe0)!important;box-shadow:0 0 15px #4fe0a255}.bar.sorted{background:linear-gradient(90deg,#168b68,#4fe0a2 60%,#b4ffe0)!important;box-shadow:0 0 9px #4fe0a033}.chart-label{position:absolute;bottom:6px;left:10px;color:#657b9e;font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 13px;color:var(--muted);font-size:10px}.legend span{display:flex;align-items:center;gap:5px}.swatch{height:7px;width:7px;border-radius:2px}.activity{background:#0a1425;border:1px solid #ffffff0b;border-radius:10px;padding:10px 11px;min-height:59px}.activity strong{font-size:11px;display:block}.activity small{font-size:10px;color:var(--muted);display:block;margin-top:4px;line-height:1.4}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.metric{background:#0a1425;border:1px solid #ffffff0a;border-radius:9px;padding:9px 8px;min-width:0}.metric label{font-size:9px;color:var(--muted);display:block;min-height:22px;line-height:1.25}.metric b{display:block;font-size:17px;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.03em;overflow:hidden;text-overflow:ellipsis}.metric.time b{color:var(--cyan)}.selection .metric.time b{color:#b6a5ff}.metric.good b{color:var(--green)}.metric.sort{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;border-color:#49d9f344;background:#0d1b30}.selection .metric.sort{border-color:#a38bff44}.metric.sort label{min-height:0;font-size:10px;font-weight:750;color:var(--text)}.metric.sort small{display:block;margin-top:3px;font-size:9px;font-weight:400;color:var(--muted)}.metric.sort b{margin-top:0;font-size:21px;color:var(--cyan);white-space:nowrap}.selection .metric.sort b{color:#b6a5ff}
+.quick{--c1:#2e4fb5;--c2:#5f8dff;--c3:#bcd0ff;--c4:#2a4a9e;--c5:#142a66;--on:#8fb0ff}.shell{--c1:#8d3f9e;--c2:#dd7ff0;--c3:#f4cffa;--c4:#7c3a8c;--c5:#431c4f;--on:#e6a0f5}.radix{--c1:#6d7a93;--c2:#c7d2e6;--c3:#eef2fa;--c4:#5f6b82;--c5:#333b4c;--on:#d5deee}.quick .bar,.shell .bar,.radix .bar{background:linear-gradient(90deg,var(--c1),var(--c2) 58%,var(--c3));box-shadow:inset 1px 0 0 #ffffff55,0 0 9px #ffffff18}.quick .bar:before,.shell .bar:before,.radix .bar:before{background:linear-gradient(90deg,var(--c2),var(--c3))}.quick .bar:after,.shell .bar:after,.radix .bar:after{background:linear-gradient(var(--c4),var(--c5))}.quick .algo-mark,.shell .algo-mark,.radix .algo-mark{background:var(--c2);box-shadow:0 0 15px #ffffff22}.quick .metric.time b,.shell .metric.time b,.radix .metric.time b,.quick .metric.sort b,.shell .metric.sort b,.radix .metric.sort b{color:var(--on)}.quick .metric.sort,.shell .metric.sort,.radix .metric.sort{border-color:#ffffff2a}.quick .progress>div,.shell .progress>div,.radix .progress>div{background:linear-gradient(90deg,var(--c1),var(--c2))}.bar.pivot{background:linear-gradient(90deg,#b9c2d4,#fff 60%,#fff)!important;filter:brightness(1.1);box-shadow:0 0 15px #ffffff66}
+.results .algo-mark{background:var(--green);box-shadow:0 0 15px #4fe0a255}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:8px 8px;border-bottom:1px solid #9bb4df33;white-space:nowrap}td{padding:11px 8px;border-bottom:1px solid #9bb4df14;font-variant-numeric:tabular-nums;white-space:nowrap}.num{text-align:right}tr.first td{color:var(--green);font-weight:800}.results-note{margin:12px 0 0;color:var(--muted);font-size:10px;line-height:1.5}
+.progress-row{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin:12px 0 6px}.progress{height:5px;background:#26334b;border-radius:20px;overflow:hidden}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),#8debd6);transition:width .15s}.selection .progress>div{background:linear-gradient(90deg,#8068df,#c0b1ff)}
+.shared{padding:15px 17px;margin-top:16px}.shared-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}.shared h3{margin:0;font-size:12px}.shared p{margin:0;color:var(--muted);font-size:10px;line-height:1.5}.winner{color:var(--green);font-weight:800}.footer{font-size:10px;color:#7184a5;line-height:1.55;margin-top:15px}
+@media(max-width:1250px){.compare-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:950px){.compare-grid{grid-template-columns:1fr}.chart-wrap{height:270px}}@media(max-width:600px){main{padding:20px 12px}.brand{display:none}.toolbar{align-items:stretch}.field{flex:1}.field input,.field select{width:100%}.toolbar button{flex:1}.algo{padding:12px}.chart-wrap{height:230px}.metrics{grid-template-columns:repeat(2,1fr)}th,td{padding-left:4px;padding-right:4px}th{font-size:8px;letter-spacing:.02em}table{font-size:11px}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="eyebrow">Laboratorio de algoritmos · Comparación simultánea</div><h1>Sorting <span style="color:var(--cyan)">Race</span></h1><p class="subtitle">Cinco algoritmos, los mismos datos y una ejecución sincronizada. Observa cómo trabajan Burbuja mejorado, Selección, Quicksort, ShellSort y Radix, paso a paso.</p></div><div class="brand">ALGORITHM VISUALIZER&nbsp; / &nbsp;02</div></header>
+
+<section class="panel toolbar">
+  <div class="field"><label for="count">Elementos</label><input id="count" type="number" min="2" max="100" value="100"></div>
+  <div class="field"><label for="speed">Pausa por operación</label><select id="speed"><option value="500" selected>0.5 segundos</option><option value="250">0.25 segundos</option><option value="100">0.1 segundos</option><option value="30">Rápido · 0.03 s</option><option value="0">Sin pausa</option></select></div>
+  <button class="primary" id="runBtn">▶ Ejecutar todos</button><button class="secondary" id="resetBtn">↻ Nueva lista</button><button class="sound" id="soundBtn">♫ Sonido: activado</button>
+</section>
+
+<div class="compare-grid">
+<section class="panel algo bubble" id="bubblePanel">
+  <div class="algo-head"><div class="algo-title"><i class="algo-mark"></i><div><h2>Burbuja mejorado</h2><p>Comparación de vecinos + bandera de salida</p></div></div><div class="status"><i class="dot" id="bubbleDot"></i><span id="bubbleStatus">En espera</span></div></div>
+  <div class="chart-wrap"><div class="chart" id="bubbleChart"></div><div class="chart-label">Arreglo A · valores 1–10,000</div></div>
+  <div class="legend"><span><i class="swatch" style="background:#49d9f3"></i>Elemento</span><span><i class="swatch" style="background:#ffc16e"></i>Comparando</span><span><i class="swatch" style="background:#ff739b"></i>Intercambio</span><span><i class="swatch" style="background:#4fe0a2"></i>Ordenado</span></div>
+  <div class="activity"><strong id="bubbleAction">Esperando ejecución</strong><small id="bubbleDetail">Se usará una copia de la lista compartida.</small></div>
+  <div class="metrics">
+    <div class="metric sort"><label>Tiempo de ordenamiento<small id="bSortNote">Sin animación · se muestra al terminar</small></label><b id="bSort">—</b></div>
+    <div class="metric time"><label>Tiempo transcurrido</label><b id="bTime">0.000 s</b></div>
+    <div class="metric"><label>Pasadas</label><b id="bPass">0</b></div>
+    <div class="metric good"><label>Pasadas evitadas*</label><b id="bAvoid">0</b></div>
+    <div class="metric"><label>Porcentaje evitado*</label><b id="bPercent">0.0%</b></div>
+    <div class="metric"><label>Comparaciones</label><b id="bComp">0</b></div>
+    <div class="metric"><label>Intercambios</label><b id="bSwap">0</b></div>
+    <div class="metric"><label>Elementos</label><b id="bCount">100</b></div>
+    <div class="metric"><label>Bandera</label><b id="bFlag">—</b></div>
+  </div>
+  <div class="progress-row"><span>Avance visual de comparaciones</span><span id="bProgressText">0%</span></div><div class="progress"><div id="bProgress"></div></div>
+</section>
+
+<section class="panel algo selection" id="selectionPanel">
+  <div class="algo-head"><div class="algo-title"><i class="algo-mark"></i><div><h2>Selección</h2><p>Búsqueda del mínimo + intercambio por pasada</p></div></div><div class="status"><i class="dot" id="selectionDot"></i><span id="selectionStatus">En espera</span></div></div>
+  <div class="chart-wrap"><div class="chart" id="selectionChart"></div><div class="chart-label">Arreglo B · misma lista inicial</div></div>
+  <div class="legend"><span><i class="swatch" style="background:#a38bff"></i>Elemento</span><span><i class="swatch" style="background:#ffc16e"></i>Comparando</span><span><i class="swatch" style="background:#4fe0a2"></i>Mínimo actual</span><span><i class="swatch" style="background:#ff739b"></i>Intercambio</span></div>
+  <div class="activity"><strong id="selectionAction">Esperando ejecución</strong><small id="selectionDetail">BuscarMenor recorre el segmento no ordenado.</small></div>
+  <div class="metrics">
+    <div class="metric sort"><label>Tiempo de ordenamiento<small id="sSortNote">Sin animación · se muestra al terminar</small></label><b id="sSort">—</b></div>
+    <div class="metric time"><label>Tiempo transcurrido</label><b id="sTime">0.000 s</b></div>
+    <div class="metric"><label>Pasadas</label><b id="sPass">0</b></div>
+    <div class="metric good"><label>Pasadas evitadas*</label><b id="sAvoid">0</b></div>
+    <div class="metric"><label>Porcentaje evitado*</label><b id="sPercent">0.0%</b></div>
+    <div class="metric"><label>Comparaciones</label><b id="sComp">0</b></div>
+    <div class="metric"><label>Intercambios</label><b id="sSwap">0</b></div>
+    <div class="metric"><label>Elementos</label><b id="sCount">100</b></div>
+    <div class="metric"><label>Mínimo encontrado</label><b id="sMin">—</b></div>
+  </div>
+  <div class="progress-row"><span>Avance visual de comparaciones</span><span id="sProgressText">0%</span></div><div class="progress"><div id="sProgress"></div></div>
+</section>
+
+<section class="panel algo quick" id="quickPanel">
+  <div class="algo-head"><div class="algo-title"><i class="algo-mark"></i><div><h2>Quicksort</h2><p>Partición de Lomuto · pivote = último elemento</p></div></div><div class="status"><i class="dot" id="quickDot"></i><span id="quickStatus">En espera</span></div></div>
+  <div class="chart-wrap"><div class="chart" id="quickChart"></div><div class="chart-label">Arreglo C · misma lista inicial</div></div>
+  <div class="legend"><span><i class="swatch" style="background:#5f8dff"></i>Elemento</span><span><i class="swatch" style="background:#ffc16e"></i>Comparando</span><span><i class="swatch" style="background:#ffffff"></i>Pivote</span><span><i class="swatch" style="background:#ff739b"></i>Intercambio</span><span><i class="swatch" style="background:#4fe0a2"></i>Posición final</span></div>
+  <div class="activity"><strong id="quickAction">Esperando ejecución</strong><small id="quickDetail">Cada partición deja un pivote en su posición final.</small></div>
+  <div class="metrics">
+    <div class="metric sort"><label>Tiempo de ordenamiento<small id="qSortNote">Sin animación · se muestra al terminar</small></label><b id="qSort">—</b></div>
+    <div class="metric time"><label>Tiempo transcurrido</label><b id="qTime">0.000 s</b></div>
+    <div class="metric"><label>Particiones</label><b id="qPass">0</b></div>
+    <div class="metric"><label>Profundidad máxima</label><b id="qDepth">0</b></div>
+    <div class="metric"><label>Pivote actual</label><b id="qPivot">—</b></div>
+    <div class="metric"><label>Comparaciones</label><b id="qComp">0</b></div>
+    <div class="metric"><label>Intercambios</label><b id="qSwap">0</b></div>
+    <div class="metric"><label>Elementos</label><b id="qCount">100</b></div>
+    <div class="metric good"><label>Posiciones fijadas</label><b id="qFixed">0</b></div>
+  </div>
+  <div class="progress-row"><span>Avance visual de operaciones</span><span id="qProgressText">0%</span></div><div class="progress"><div id="qProgress"></div></div>
+</section>
+
+<section class="panel algo shell" id="shellPanel">
+  <div class="algo-head"><div class="algo-title"><i class="algo-mark"></i><div><h2>ShellSort</h2><p>Inserción con salto · secuencia N/2, N/4, … 1</p></div></div><div class="status"><i class="dot" id="shellDot"></i><span id="shellStatus">En espera</span></div></div>
+  <div class="chart-wrap"><div class="chart" id="shellChart"></div><div class="chart-label">Arreglo D · misma lista inicial</div></div>
+  <div class="legend"><span><i class="swatch" style="background:#dd7ff0"></i>Elemento</span><span><i class="swatch" style="background:#ffc16e"></i>Comparando</span><span><i class="swatch" style="background:#ff739b"></i>Desplazamiento</span><span><i class="swatch" style="background:#4fe0a2"></i>Ordenado</span></div>
+  <div class="activity"><strong id="shellAction">Esperando ejecución</strong><small id="shellDetail">Compara elementos separados por un salto que se va reduciendo.</small></div>
+  <div class="metrics">
+    <div class="metric sort"><label>Tiempo de ordenamiento<small id="hSortNote">Sin animación · se muestra al terminar</small></label><b id="hSort">—</b></div>
+    <div class="metric time"><label>Tiempo transcurrido</label><b id="hTime">0.000 s</b></div>
+    <div class="metric"><label>Pasadas</label><b id="hPass">0</b></div>
+    <div class="metric"><label>Salto actual</label><b id="hGap">—</b></div>
+    <div class="metric"><label>Inserciones</label><b id="hIns">0</b></div>
+    <div class="metric"><label>Comparaciones</label><b id="hComp">0</b></div>
+    <div class="metric"><label>Desplazamientos</label><b id="hSwap">0</b></div>
+    <div class="metric"><label>Elementos</label><b id="hCount">100</b></div>
+    <div class="metric"><label>Saltos totales</label><b id="hGaps">0</b></div>
+  </div>
+  <div class="progress-row"><span>Avance visual de operaciones</span><span id="hProgressText">0%</span></div><div class="progress"><div id="hProgress"></div></div>
+</section>
+
+<section class="panel algo radix" id="radixPanel">
+  <div class="algo-head"><div class="algo-title"><i class="algo-mark"></i><div><h2>Radix</h2><p>LSD base 10 · conteo estable por dígito</p></div></div><div class="status"><i class="dot" id="radixDot"></i><span id="radixStatus">En espera</span></div></div>
+  <div class="chart-wrap"><div class="chart" id="radixChart"></div><div class="chart-label">Arreglo E · misma lista inicial</div></div>
+  <div class="legend"><span><i class="swatch" style="background:#c7d2e6"></i>Elemento</span><span><i class="swatch" style="background:#ffc16e"></i>Leyendo</span><span><i class="swatch" style="background:#ff739b"></i>Escribiendo</span><span><i class="swatch" style="background:#4fe0a2"></i>Ordenado</span></div>
+  <div class="activity"><strong id="radixAction">Esperando ejecución</strong><small id="radixDetail">Reordena la lista dígito por dígito, de unidades hacia arriba.</small></div>
+  <div class="metrics">
+    <div class="metric sort"><label>Tiempo de ordenamiento<small id="rSortNote">Sin animación · se muestra al terminar</small></label><b id="rSort">—</b></div>
+    <div class="metric time"><label>Tiempo transcurrido</label><b id="rTime">0.000 s</b></div>
+    <div class="metric"><label>Pasadas</label><b id="rPass">0</b></div>
+    <div class="metric"><label>Dígito actual</label><b id="rDigit">—</b></div>
+    <div class="metric"><label>Cubetas con datos</label><b id="rBuckets">—</b></div>
+    <div class="metric"><label>Comparaciones</label><b id="rComp">0</b></div>
+    <div class="metric"><label>Escrituras</label><b id="rSwap">0</b></div>
+    <div class="metric"><label>Elementos</label><b id="rCount">100</b></div>
+    <div class="metric"><label>Base</label><b id="rBase">10</b></div>
+  </div>
+  <div class="progress-row"><span>Avance visual de operaciones</span><span id="rProgressText">0%</span></div><div class="progress"><div id="rProgress"></div></div>
+</section>
+
+<section class="panel algo results" id="resultsPanel">
+  <div class="algo-head"><div class="algo-title"><i class="algo-mark"></i><div><h2>Resultados</h2><p>Se ordena por tiempo cuando terminan los cinco</p></div></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Método</th><th class="num">Tiempo</th><th class="num">Comparaciones</th><th class="num">Movimientos†</th></tr></thead>
+    <tbody id="resultsBody"></tbody>
+  </table></div>
+  <p class="results-note">†Movimientos: intercambios en Burbuja, Selección y Quicksort; desplazamientos en ShellSort; escrituras en el arreglo principal en Radix. No cuestan lo mismo, así que compáralos con cuidado.</p>
+</section>
+</div>
+
+<section class="panel shared"><div class="shared-head"><h3>Condiciones de la comparación</h3><span id="raceResult" class="winner">Preparado para iniciar</span></div><p>Los cinco métodos reciben copias idénticas de una misma lista aleatoria. Cada algoritmo avanza de forma independiente, pero comienza en el mismo instante y usa el mismo intervalo de animación. *“Pasadas evitadas” se calcula como N menos las pasadas realizadas para Burbuja; Selección no tiene mecanismo de salida anticipada, por eso se reporta 0 como pasadas evitadas. En Quicksort, ShellSort y Radix esas tarjetas se sustituyen por métricas propias de cada método.</p></section>
+<p class="footer">Nota sobre el tiempo: “Tiempo de ordenamiento” mide solo el algoritmo, sin animación, pausas ni sonido, promediando varias ejecuciones sobre la misma lista inicial. “Tiempo transcurrido” es el de la animación e incluye las pausas configuradas para observar los pasos. Ninguno equivale al tiempo de CPU medido con clock() en C. Los intercambios de Selección se cuentan cuando termina cada pasada, incluso si el mínimo ya estaba en su posición, siguiendo literalmente tu implementación. En Radix, las comparaciones corresponden solo a la búsqueda del máximo; el ordenamiento en sí no compara elementos entre sí.</p>
+</main>
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+let original=[],soundOn=true,running=false,audio=null;
+const ALGOS=['bubble','selection','quick','shell','radix'];
+const PFX={bubble:'b',selection:'s',quick:'q',shell:'h',radix:'r'};
+const NAMES={bubble:'Burbuja',selection:'Selección',quick:'Quicksort',shell:'ShellSort',radix:'Radix'};
+const newExtra={quick:()=>({Depth:0,Pivot:'—',Fixed:0}),shell:n=>({Gap:'—',Ins:0,Gaps:Math.floor(Math.log2(n))}),radix:()=>({Digit:'—',Buckets:'—'})};
+function newStats(w,a){return{a,passes:0,comparisons:0,swaps:0,fixed:new Set(),extra:newExtra[w](a.length)}}
+const state={
+ bubble:{a:[],bars:[],passes:0,comparisons:0,swaps:0,elapsed:0,sort:null,flag:'—',done:false},
+ selection:{a:[],bars:[],passes:0,comparisons:0,swaps:0,elapsed:0,sort:null,min:'—',done:false},
+ quick:{a:[],bars:[],passes:0,comparisons:0,swaps:0,elapsed:0,sort:null,fixed:new Set(),extra:{},done:false},
+ shell:{a:[],bars:[],passes:0,comparisons:0,swaps:0,elapsed:0,sort:null,fixed:new Set(),extra:{},done:false},
+ radix:{a:[],bars:[],passes:0,comparisons:0,swaps:0,elapsed:0,sort:null,fixed:new Set(),extra:{},done:false}
+};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// Sin pausa, los métodos se alternan operación a operación y ceden el hilo de vez en cuando para que la página se dibuje.
+let paceTick=0;
+function pace(delay){if(delay)return sleep(delay);if(++paceTick%64===0)return sleep(0)}
+function randomArray(n){return Array.from({length:n},()=>Math.floor(Math.random()*10000)+1)}
+function tone(freq=480,duration=.06){
+ if(!soundOn)return;
+ try{audio ||= new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+duration+.01)}catch(e){}
+}
+function render(which){
+ const st=state[which],el=$(which+'Chart');el.innerHTML='';
+ st.bars=st.a.map((v,i)=>{const slot=document.createElement('div'),bar=document.createElement('div');slot.className='bar-slot';bar.className='bar';bar.style.height=Math.max(1.2,v/10000*94)+'%';bar.title=`Posición ${i+1}: ${v}`;slot.appendChild(bar);el.appendChild(slot);return bar});
+}
+const IDLE={bubble:'Se usará una copia de la lista compartida.',selection:'BuscarMenor recorre el segmento no ordenado.',quick:'Cada partición deja un pivote en su posición final.',shell:'Compara elementos separados por un salto que se va reduciendo.',radix:'Reordena la lista dígito por dígito, de unidades hacia arriba.'};
+function resetState(){
+ const n=original.length;
+ for(const which of ALGOS){
+  const st=state[which];st.a=original.slice();st.passes=st.comparisons=st.swaps=st.elapsed=0;st.sort=null;st.done=false;
+  if(which==='bubble')st.flag='—';else if(which==='selection')st.min='—';else{st.fixed=new Set();st.extra=newExtra[which](n)}
+  render(which);metrics(which);status(which,'En espera',false);
+  action(which,'Esperando ejecución',IDLE[which]);
+  prog(which,0);
+ }
+ $('raceResult').textContent='Preparado para iniciar';
+ renderResults();
+}
+function renderResults(){
+ const allDone=ALGOS.every(w=>state[w].done);
+ const order=allDone?ALGOS.slice().sort((x,y)=>state[x].sort.ms-state[y].sort.ms):ALGOS;
+ $('resultsBody').innerHTML=order.map((w,i)=>{const st=state[w],ok=st.done&&st.sort;return`<tr${allDone&&i===0?' class="first"':''}><td>${allDone?i+1:'–'}</td><td>${NAMES[w]}</td><td class="num">${ok?formatTime(st.sort.ms):'—'}</td><td class="num">${ok?st.comparisons.toLocaleString('es-MX'):'—'}</td><td class="num">${ok?st.swaps.toLocaleString('es-MX'):'—'}</td></tr>`}).join('');
+}
+function status(w,t,active){$(w+'Status').textContent=t;$(w+'Dot').className=active?'dot active':'dot'}
+function action(w,t,d){$(w+'Action').textContent=t;$(w+'Detail').textContent=d}
+function prog(w,p){const x=PFX[w];$(x+'Progress').style.width=Math.min(100,p)+'%';$(x+'ProgressText').textContent=Math.round(p)+'%'}
+function metrics(w){
+ const st=state[w],p=PFX[w],n=st.a.length;
+ const avoided=w==='bubble'?Math.max(0,n-st.passes):0;
+ $(p+'Time').textContent=st.elapsed.toFixed(3)+' s';
+ $(p+'Sort').textContent=st.done&&st.sort?formatTime(st.sort.ms):'—';
+ $(p+'SortNote').textContent=st.done&&st.sort?`Sin animación · promedio de ${st.sort.runs.toLocaleString('es-MX')} ejecuciones`:'Sin animación · se muestra al terminar';
+ $(p+'Pass').textContent=st.passes;
+ if(w==='bubble'||w==='selection'){
+  $(p+'Avoid').textContent=avoided;
+  $(p+'Percent').textContent=(n?avoided/n*100:0).toFixed(1)+'%';
+ }
+ $(p+'Comp').textContent=st.comparisons.toLocaleString('es-MX');
+ $(p+'Swap').textContent=st.swaps.toLocaleString('es-MX');
+ $(p+'Count').textContent=n;
+ if(w==='bubble')$('bFlag').textContent=st.flag;
+ else if(w==='selection')$('sMin').textContent=st.min;
+ else for(const k in st.extra)$(p+k).textContent=st.extra[k];
+}
+function clearBars(st){st.bars.forEach(b=>b.className='bar')}
+function paint(st,i,cls){st.bars[i].className='bar '+cls}
+function refresh(st,i){st.bars[i].style.height=Math.max(1.2,st.a[i]/10000*94)+'%';st.bars[i].title=`Posición ${i+1}: ${st.a[i]}`}
+function elapsed(st,start){st.elapsed=(performance.now()-start)/1000}
+function finish(w){const st=state[w];st.bars.forEach(b=>b.className='bar sorted');status(w,'Completado',false);st.done=true;metrics(w);prog(w,100);renderResults()}
+// Mismos algoritmos que la animación, sin pausas, sonido ni acceso al DOM.
+function sortBubble(a){
+ const n=a.length;
+ for(let i=0;i<n;i++){
+  let bandera=0;
+  for(let j=0;j<n-1;j++)if(a[j]>a[j+1]){const aux=a[j];a[j]=a[j+1];a[j+1]=aux;bandera=1}
+  if(bandera===0)break;
+ }
+}
+function sortSelection(a){
+ const n=a.length;
+ for(let i=0;i<n-1;i++){
+  let posMenor=i;
+  for(let j=i+1;j<n;j++)if(a[j]<a[posMenor])posMenor=j;
+  const temp=a[i];a[i]=a[posMenor];a[posMenor]=temp;
+ }
+}
+function sortQuick(a,lo=0,hi=a.length-1){
+ if(lo>=hi)return;
+ const pivote=a[hi];let i=lo;
+ for(let j=lo;j<hi;j++)if(a[j]<pivote){if(i!==j){const t=a[i];a[i]=a[j];a[j]=t}i++}
+ if(i!==hi){const t=a[i];a[i]=a[hi];a[hi]=t}
+ sortQuick(a,lo,i-1);sortQuick(a,i+1,hi);
+}
+function sortShell(a){
+ const n=a.length;
+ for(let gap=Math.floor(n/2);gap>0;gap=Math.floor(gap/2)){
+  for(let i=gap;i<n;i++){
+   const temp=a[i];let j=i;
+   while(j>=gap&&a[j-gap]>temp){a[j]=a[j-gap];j-=gap}
+   if(j!==i)a[j]=temp;
+  }
+ }
+}
+function sortRadix(a){
+ const n=a.length;let max=a[0];
+ for(let i=1;i<n;i++)if(a[i]>max)max=a[i];
+ const out=new Array(n),cuenta=new Array(10);
+ for(let exp=1;Math.floor(max/exp)>0;exp*=10){
+  cuenta.fill(0);
+  for(let i=0;i<n;i++)cuenta[Math.floor(a[i]/exp)%10]++;
+  for(let d=1;d<10;d++)cuenta[d]+=cuenta[d-1];
+  for(let i=n-1;i>=0;i--)out[--cuenta[Math.floor(a[i]/exp)%10]]=a[i];
+  for(let i=0;i<n;i++)a[i]=out[i];
+ }
+}
+function copyInto(buf,src){for(let k=0;k<src.length;k++)buf[k]=src[k]}
+// Una sola ejecución dura menos que la resolución del reloj, así que se repite
+// hasta acumular un tiempo medible y se descuenta lo que tarda copiar la lista.
+function measureSort(sortFn,src,minMs=30){
+ const buf=new Array(src.length),batch=64;
+ for(let r=0;r<batch;r++){copyInto(buf,src);sortFn(buf)} // calentamiento del JIT
+ let runs=0;const t0=performance.now();let total=0;
+ do{for(let r=0;r<batch;r++){copyInto(buf,src);sortFn(buf)}runs+=batch;total=performance.now()-t0}while(total<minMs);
+ const t1=performance.now();
+ for(let r=0;r<runs;r++)copyInto(buf,src);
+ const copy=performance.now()-t1;
+ return{ms:Math.max(0,total-copy)/runs,runs};
+}
+function formatTime(ms){return ms<.001?(ms*1e6).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+' ns':ms<1?(ms*1000).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})+' µs':ms.toLocaleString('es-MX',{minimumFractionDigits:3,maximumFractionDigits:3})+' ms'}
+async function runBubble(delay,start){
+ const st=state.bubble,n=st.a.length,max=n*(n-1);let ops=0;
+ for(let i=0;i<n;i++){
+  let bandera=0;st.passes++;st.flag='0';metrics('bubble');
+  action('bubble',`Pasada ${st.passes}`,`Inicia recorrido de ${n-1} comparaciones.`);tone(980,.1);
+  for(let j=0;j<n-1;j++){
+   clearBars(st);paint(st,j,'compare');paint(st,j+1,'compare');
+   st.comparisons++;ops++;
+   if(st.a[j]>st.a[j+1]){
+    const aux=st.a[j];st.a[j]=st.a[j+1];st.a[j+1]=aux;bandera=1;st.flag='1';st.swaps++;
+    paint(st,j,'swap');paint(st,j+1,'swap');refresh(st,j);refresh(st,j+1);
+    action('bubble','Intercambio',`${st.a[j]} y ${st.a[j+1]} cambiaron de posición.`);tone(760,.07);
+   }else{action('bubble','Comparación',`${st.a[j]} ≤ ${st.a[j+1]}: no hay intercambio.`);tone(450,.045)}
+   elapsed(st,start);metrics('bubble');prog('bubble',ops/max*100);
+   await pace(delay);
+  }
+  clearBars(st);
+  if(bandera===0){st.flag='0';action('bubble','Salida anticipada','La pasada terminó sin intercambios: bandera == 0.');break}
+ }
+ elapsed(st,start);finish('bubble');action('bubble','¡Burbuja terminó!',`${st.swaps} intercambios · ${st.passes} pasadas.`);
+}
+async function runSelection(delay,start){
+ const st=state.selection,n=st.a.length,max=n*(n-1)/2;let ops=0;
+ for(let i=0;i<n-1;i++){
+  st.passes++;let posMenor=i;paint(st,i,'minimum');
+  action('selection',`Pasada ${st.passes}`,`BuscarMenor busca el mínimo desde la posición ${i+1}.`);
+  for(let j=i+1;j<n;j++){
+   clearBars(st);for(let k=0;k<i;k++)paint(st,k,'sorted');paint(st,i,'minimum');paint(st,posMenor,'minimum');paint(st,j,'compare');
+   st.comparisons++;ops++;
+   if(st.a[j]<st.a[posMenor]){
+    posMenor=j;clearBars(st);for(let k=0;k<i;k++)paint(st,k,'sorted');paint(st,i,'minimum');paint(st,posMenor,'minimum');
+    action('selection','Nuevo mínimo',`Se encontró ${st.a[posMenor]} en la posición ${posMenor+1}.`);tone(900,.06);
+   }else{action('selection','Comparando',`${st.a[j]} no es menor que el mínimo ${st.a[posMenor]}.`);tone(520,.04)}
+   st.min=String(st.a[posMenor]);elapsed(st,start);metrics('selection');prog('selection',ops/max*100);
+   await pace(delay);
+  }
+  const temp=st.a[i];st.a[i]=st.a[posMenor];st.a[posMenor]=temp;st.swaps++;
+  refresh(st,i);refresh(st,posMenor);clearBars(st);
+  for(let k=0;k<=i;k++)paint(st,k,'sorted');
+  action('selection','Intercambio de la pasada',`Se coloca ${st.a[i]} en la posición definitiva ${i+1}.`);tone(760,.08);
+  elapsed(st,start);metrics('selection');
+  await pace(Math.min(delay,250));
+ }
+ elapsed(st,start);finish('selection');action('selection','¡Selección terminó!',`${st.swaps} intercambios · ${st.passes} pasadas.`);
+}
+// Pasos de la animación: cada generador avanza el arreglo y describe qué mostrar.
+// m: barras a resaltar · w: posiciones que cambiaron · t/d: textos · f: tono.
+function* quickSteps(st,lo=0,hi=st.a.length-1,depth=1){
+ if(lo>hi)return;
+ const a=st.a;
+ if(lo===hi){st.fixed.add(lo);st.extra.Fixed=st.fixed.size;return}
+ st.passes++;st.extra.Depth=Math.max(st.extra.Depth,depth);
+ const pivote=a[hi];let i=lo;st.extra.Pivot=String(pivote);
+ for(let j=lo;j<hi;j++){
+  st.comparisons++;
+  if(a[j]<pivote){
+   if(i!==j){
+    const t=a[i];a[i]=a[j];a[j]=t;st.swaps++;
+    yield{m:[[hi,'pivot'],[i,'swap'],[j,'swap']],w:[i,j],t:'Intercambio',d:`${a[i]} es menor que el pivote ${pivote}: pasa a la zona izquierda.`,f:760,dur:.07};
+   }else yield{m:[[hi,'pivot'],[j,'compare']],t:'Comparación',d:`${a[j]} es menor que el pivote ${pivote}: ya está en la zona izquierda.`,f:520,dur:.045};
+   i++;
+  }else yield{m:[[hi,'pivot'],[j,'compare']],t:'Comparación',d:`${a[j]} no es menor que el pivote ${pivote}.`,f:450,dur:.045};
+ }
+ const w=[];
+ if(i!==hi){const t=a[i];a[i]=a[hi];a[hi]=t;st.swaps++;w.push(i,hi)}
+ st.fixed.add(i);st.extra.Fixed=st.fixed.size;
+ yield{m:[],w,t:'Pivote colocado',d:`${pivote} queda en su posición final ${i+1}.`,f:980,dur:.1};
+ yield* quickSteps(st,lo,i-1,depth+1);
+ yield* quickSteps(st,i+1,hi,depth+1);
+}
+function* shellSteps(st){
+ const a=st.a,n=a.length;
+ for(let gap=Math.floor(n/2);gap>0;gap=Math.floor(gap/2)){
+  st.passes++;st.extra.Gap=gap;
+  for(let i=gap;i<n;i++){
+   const temp=a[i];let j=i;
+   while(j>=gap){
+    st.comparisons++;
+    if(a[j-gap]>temp){
+     yield{m:[[j-gap,'compare'],[j,'compare']],t:`Salto ${gap} · comparación`,d:`${a[j-gap]} > ${temp}: hay que desplazarlo.`,f:520,dur:.045};
+     a[j]=a[j-gap];st.swaps++;
+     yield{m:[[j,'swap']],w:[j],t:`Salto ${gap} · desplazamiento`,d:`${a[j]} avanza ${gap} posiciones.`,f:760,dur:.07};
+     j-=gap;
+    }else{
+     yield{m:[[j-gap,'compare'],[j,'compare']],t:`Salto ${gap} · comparación`,d:`${a[j-gap]} ≤ ${temp}: ${temp} ya no avanza más.`,f:450,dur:.045};
+     break;
+    }
+   }
+   if(j!==i){
+    a[j]=temp;st.extra.Ins++;
+    yield{m:[[j,'minimum']],w:[j],t:'Inserción',d:`${temp} se inserta en la posición ${j+1}.`,f:900,dur:.06};
+   }
+  }
+ }
+}
+function* radixSteps(st){
+ const a=st.a,n=a.length,nombres=['Unidades','Decenas','Centenas','Millares','Decenas de millar'];
+ let max=a[0];
+ for(let i=1;i<n;i++){
+  st.comparisons++;if(a[i]>max)max=a[i];
+  yield{m:[[i,'compare']],t:'Buscando el máximo',d:`Máximo hasta ahora: ${max}. Define cuántos dígitos hay que procesar.`,f:450,dur:.045};
+ }
+ const out=new Array(n);let d=0;
+ for(let exp=1;Math.floor(max/exp)>0;exp*=10,d++){
+  st.passes++;st.extra.Digit=nombres[d];
+  const cuenta=new Array(10).fill(0);
+  for(let i=0;i<n;i++){
+   const dig=Math.floor(a[i]/exp)%10;cuenta[dig]++;st.extra.Buckets=cuenta.filter(Boolean).length;
+   yield{m:[[i,'compare']],t:`${nombres[d]} · conteo`,d:`${a[i]} tiene el dígito ${dig}: va a la cubeta ${dig}.`,f:400+dig*50,dur:.045};
+  }
+  for(let k=1;k<10;k++)cuenta[k]+=cuenta[k-1];
+  for(let i=n-1;i>=0;i--)out[--cuenta[Math.floor(a[i]/exp)%10]]=a[i];
+  for(let i=0;i<n;i++){
+   a[i]=out[i];st.swaps++;
+   yield{m:[[i,'swap']],w:[i],t:`${nombres[d]} · escritura`,d:`${a[i]} se escribe en la posición ${i+1}.`,f:760,dur:.05};
+  }
+ }
+}
+async function runSteps(w,steps,delay,start,summary){
+ const st=state[w],dry=newStats(w,st.a.slice());
+ let total=0;for(const _ of steps(dry))total++;
+ let ops=0;
+ for(const ev of steps(st)){
+  ops++;clearBars(st);
+  for(const i of st.fixed)paint(st,i,'sorted');
+  (ev.w||[]).forEach(i=>refresh(st,i));
+  ev.m.forEach(([i,c])=>paint(st,i,c));
+  action(w,ev.t,ev.d);tone(ev.f,ev.dur);
+  elapsed(st,start);metrics(w);prog(w,ops/total*100);
+  await pace(delay);
+ }
+ elapsed(st,start);finish(w);action(w,`¡${NAMES[w]} terminó!`,summary(st));
+}
+async function run(){
+ if(running)return;running=true;
+ resetState();
+ const PURE={bubble:sortBubble,selection:sortSelection,quick:a=>sortQuick(a),shell:sortShell,radix:sortRadix};
+ for(const w of ALGOS)state[w].sort=measureSort(PURE[w],original);
+ $('runBtn').disabled=true;$('resetBtn').disabled=true;$('raceResult').textContent='Los cinco algoritmos están ejecutándose…';
+ const delay=Number($('speed').value),start=performance.now();
+ ALGOS.forEach(w=>status(w,'Ordenando',true));
+ const resumen=st=>`${st.comparisons.toLocaleString('es-MX')} comparaciones · ${st.passes} pasadas.`;
+ await Promise.all([runBubble(delay,start),runSelection(delay,start),runSteps('quick',quickSteps,delay,start,resumen),runSteps('shell',shellSteps,delay,start,resumen),runSteps('radix',radixSteps,delay,start,resumen)]);
+ running=false;$('runBtn').disabled=false;$('resetBtn').disabled=false;$('runBtn').textContent='▶ Ejecutar otra vez';
+ const best=ALGOS.reduce((x,y)=>state[y].sort.ms<state[x].sort.ms?y:x);
+ $('raceResult').textContent=`Finalizados · Más rápido: ${NAMES[best]} (${formatTime(state[best].sort.ms)})`;
+}
+function newData(){
+ const n=Math.max(2,Math.min(100,parseInt($('count').value,10)||100));$('count').value=n;original=randomArray(n);resetState();
+ $('runBtn').disabled=false;$('runBtn').textContent='▶ Ejecutar todos';
+}
+$('runBtn').addEventListener('click',run);
+$('resetBtn').addEventListener('click',()=>{if(!running)newData()});
+$('count').addEventListener('change',()=>{if(!running)newData()});
+$('soundBtn').addEventListener('click',()=>{soundOn=!soundOn;$('soundBtn').textContent=`♫ Sonido: ${soundOn?'activado':'desactivado'}`;if(soundOn)tone(1000,.1)});
+newData();
+})();
+</script>
+</body>
+</html>

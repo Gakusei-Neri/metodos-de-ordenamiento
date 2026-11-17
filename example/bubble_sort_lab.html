@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bubble Sort Lab | Visualizador</title>
+<style>
+:root{
+  --bg:#080d18;--panel:#111a2b;--panel2:#162238;--line:rgba(151,177,220,.16);
+  --text:#eef4ff;--muted:#8ea1c2;--cyan:#46d9f5;--violet:#9c82ff;
+  --green:#4ee0a0;--orange:#ffbd69;--red:#ff6f91;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 0%,#1a2850 0,transparent 38%),radial-gradient(ellipse at 90% 20%,#18234a 0,transparent 32%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:1450px;margin:auto;padding:32px 26px 44px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:24px}
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);font-weight:800}
+h1{font-size:clamp(28px,4vw,46px);letter-spacing:-.04em;margin:8px 0 8px;line-height:1.04}
+.subtitle{color:var(--muted);margin:0;max-width:720px;line-height:1.6}
+.brand{border:1px solid var(--line);border-radius:14px;padding:11px 14px;color:#c9d7f1;background:#111a2b99;font-size:12px;white-space:nowrap}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+.panel{background:linear-gradient(145deg,rgba(23,35,58,.96),rgba(13,21,37,.96));border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 55px #0005}
+.visual-panel{padding:20px;min-width:0}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.panel-head h2,.side-title{font-size:14px;letter-spacing:.02em;margin:0;font-weight:750}
+.status{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:#71819e;box-shadow:0 0 0 4px #71819e20}
+.dot.running{background:var(--green);box-shadow:0 0 0 4px #4ee0a022;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px #4ee0a000}}
+.chart-wrap{height:430px;position:relative;border:1px solid #8da6d51b;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#0b1425,#0b1220 75%);padding:18px 14px 32px}
+.chart-wrap:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(25% - 1px),#9db4df12 25%);pointer-events:none}
+.chart{height:100%;display:flex;align-items:flex-end;justify-content:center;gap:3px;position:relative;z-index:1;perspective:900px}
+.bar-slot{height:100%;flex:1;min-width:2px;max-width:18px;display:flex;align-items:flex-end;position:relative}
+.bar{width:100%;height:10%;min-height:3px;position:relative;border-radius:3px 3px 1px 1px;background:linear-gradient(90deg,#247cba,#42d6ee 58%,#a4f4ff);box-shadow:inset 1px 0 0 #ffffff55,0 0 12px #38c8e522;transform:skewY(-2deg);transition:height .22s ease,filter .2s,opacity .2s}
+.bar:before{content:"";position:absolute;left:2px;right:-4px;top:-5px;height:6px;background:linear-gradient(90deg,#67e7fa,#c4f8ff);transform:skewX(-42deg);border-radius:2px}
+.bar:after{content:"";position:absolute;top:0;right:-4px;width:4px;height:100%;background:linear-gradient(#226b9e,#123b65);transform:skewY(42deg);transform-origin:left top}
+.bar.compare{background:linear-gradient(90deg,#b07822,#ffca72 60%,#ffe5aa);filter:brightness(1.25);box-shadow:0 0 18px #ffbd6955}
+.bar.swap{background:linear-gradient(90deg,#bd4770,#ff7298 60%,#ffc0d2);filter:brightness(1.25);box-shadow:0 0 20px #ff6f9166}
+.bar.sorted{background:linear-gradient(90deg,#168b68,#4ee0a0 60%,#b4ffe0);box-shadow:0 0 12px #4ee0a033}
+.chart-label{position:absolute;bottom:9px;left:14px;color:#657b9e;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.legend{display:flex;gap:17px;flex-wrap:wrap;margin-top:13px;color:var(--muted);font-size:11px}
+.legend span{display:flex;align-items:center;gap:7px}.swatch{width:8px;height:8px;border-radius:2px}
+.progress-row{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin:18px 0 7px}
+.progress{height:6px;border-radius:20px;background:#26334b;overflow:hidden}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:20px;transition:width .2s}
+.controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:20px}
+.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:750}
+input,select{background:#0b1425;color:var(--text);border:1px solid #34435e;border-radius:10px;padding:11px 12px;font:inherit;outline:none}
+input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #46d9f51a}
+input{width:100px}select{min-width:125px}
+button{border:0;border-radius:10px;padding:12px 17px;font-weight:800;font-size:12px;cursor:pointer;transition:transform .15s,filter .15s}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}button:disabled{opacity:.38;cursor:not-allowed;transform:none}
+.primary{color:#06121d;background:linear-gradient(110deg,#53dff3,#7ee7d1);box-shadow:0 7px 22px #46d9f526}
+.secondary{color:#dce8ff;background:#263651;border:1px solid #405575}
+.sound-btn{display:flex;align-items:center;gap:7px;color:#bcd0ef;background:#1b2940;border:1px solid #344762;padding:11px 13px}
+.sidebar{display:flex;flex-direction:column;gap:14px}
+.side-panel{padding:18px}
+.side-title{margin-bottom:14px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.metric{padding:13px 12px;border-radius:13px;background:#0b1425;border:1px solid #ffffff0b;min-width:0}
+.metric .label{font-size:10px;color:var(--muted);line-height:1.35;min-height:27px}
+.metric .value{font-size:23px;font-weight:800;letter-spacing:-.04em;margin-top:6px;font-variant-numeric:tabular-nums}
+.metric .unit{font-size:10px;color:#8195b8;margin-left:4px;font-weight:600}
+.metric.accent .value{color:var(--cyan)}.metric.good .value{color:var(--green)}.metric.warm .value{color:var(--orange)}
+.live-box{background:#0b1425;border:1px solid #ffffff0b;border-radius:13px;padding:13px}
+.live-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.1em}
+.live-action{font-size:14px;font-weight:750;margin-top:7px;min-height:20px}
+.live-detail{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.code-note{font-size:11px;color:#9db0d0;line-height:1.6;margin:0}
+.code-note code{color:#8feaff;background:#0a1424;padding:2px 5px;border-radius:4px}
+.footer-note{margin-top:18px;color:#7184a5;font-size:10px;line-height:1.5}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.metrics-panel{grid-column:1/-1}}
+@media(max-width:620px){main{padding:22px 13px}.brand{display:none}.visual-panel{padding:13px}.chart-wrap{height:330px;padding-left:7px;padding-right:7px}.sidebar{display:flex}.controls{align-items:stretch}.field{flex:1}.field input,.field select{width:100%}.controls button{flex:1}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div><div class="eyebrow">Laboratorio de algoritmos · Ordenamiento</div><h1>Bubble Sort <span style="color:var(--cyan)">Lab</span></h1><p class="subtitle">Visualiza tu algoritmo de burbuja mejorado: compara elementos, intercambia posiciones y detecta cuándo una pasada completa ya no necesita movimientos.</p></div>
+  <div class="brand">INTERACTIVE ALGORITHM VIEWER&nbsp; / &nbsp;01</div>
+</header>
+<div class="layout">
+<section class="panel visual-panel">
+  <div class="panel-head"><h2>Representación 3D de los datos</h2><div class="status"><span class="dot" id="statusDot"></span><span id="statusText">En espera</span></div></div>
+  <div class="chart-wrap"><div class="chart" id="chart" aria-label="Gráfica de barras del arreglo"></div><div class="chart-label">Altura proporcional al valor · Rango 1–10,000</div></div>
+  <div class="legend"><span><i class="swatch" style="background:#46d9f5"></i>Sin ordenar</span><span><i class="swatch" style="background:#ffbd69"></i>Comparación</span><span><i class="swatch" style="background:#ff6f91"></i>Intercambio</span><span><i class="swatch" style="background:#4ee0a0"></i>Ordenado</span></div>
+  <div class="progress-row"><span>Progreso de ejecución</span><span id="progressText">0%</span></div><div class="progress"><div id="progressBar"></div></div>
+  <div class="controls">
+    <div class="field"><label for="count">Elementos</label><input id="count" type="number" min="2" max="100" value="100"></div>
+    <div class="field"><label for="speed">Intervalo por comparación</label><select id="speed"><option value="500" selected>0.5 segundos</option><option value="250">0.25 segundos</option><option value="100">0.1 segundos</option><option value="30">Rápido · 0.03 s</option><option value="0">Sin pausa</option></select></div>
+    <button class="primary" id="runBtn">▶ Ejecutar</button><button class="secondary" id="resetBtn">↻ Reiniciar</button><button class="sound-btn" id="soundBtn">♫ Sonido: activado</button>
+  </div>
+  <p class="footer-note">La cantidad máxima es 100 para conservar una visualización legible. El intervalo se aplica a cada comparación; con 100 elementos el algoritmo puede realizar miles de comparaciones.</p>
+</section>
+<aside class="sidebar">
+  <section class="panel side-panel metrics-panel">
+    <h2 class="side-title">Métricas del algoritmo</h2>
+    <div class="metrics">
+      <div class="metric accent"><div class="label">Tiempo de ejecución</div><div class="value" id="timeValue">0.000<span class="unit">s</span></div></div>
+      <div class="metric"><div class="label">Pasadas realizadas</div><div class="value" id="passesValue">0</div></div>
+      <div class="metric good"><div class="label">Pasadas que evitó</div><div class="value" id="avoidedValue">0</div></div>
+      <div class="metric warm"><div class="label">Pasadas evitadas</div><div class="value" id="percentValue">0.0<span class="unit">%</span></div></div>
+      <div class="metric"><div class="label">Comparaciones</div><div class="value" id="comparisonsValue">0</div></div>
+      <div class="metric"><div class="label">Intercambios</div><div class="value" id="swapsValue">0</div></div>
+    </div>
+  </section>
+  <section class="panel side-panel">
+    <h2 class="side-title">Actividad en tiempo real</h2>
+    <div class="live-box"><div class="live-label">Operación actual</div><div class="live-action" id="actionText">Esperando ejecución</div><div class="live-detail" id="detailText">Genera una lista aleatoria y presiona Ejecutar.</div></div>
+  </section>
+  <section class="panel side-panel">
+    <h2 class="side-title">Lógica implementada</h2>
+    <p class="code-note">Se conserva la estructura de tu función <code>Burbuja()</code>: el ciclo interno recorre <code>n-1</code> posiciones en cada pasada, la bandera detecta si hubo intercambios y el algoritmo termina anticipadamente cuando <code>bandera == 0</code>.</p>
+  </section>
+</aside>
+</div>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const chart = $('chart');
+  let values = [], bars = [], running = false, stopRequested = false, soundOn = true;
+  let comparisons = 0, swaps = 0, passes = 0, startTime = 0, elapsed = 0;
+  let audioCtx = null;
+
+  function makeData(n) {
+    return Array.from({length:n}, () => Math.floor(Math.random()*10000)+1);
+  }
+  function render() {
+    chart.innerHTML = '';
+    bars = values.map((v,i) => {
+      const slot = document.createElement('div');
+      slot.className = 'bar-slot';
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.height = `${Math.max(1.2, v/10000*94)}%`;
+      bar.title = `Posición ${i+1}: ${v}`;
+      slot.appendChild(bar); chart.appendChild(slot);
+      return bar;
+    });
+  }
+  function updateMetrics() {
+    $('passesValue').textContent = passes;
+    $('avoidedValue').textContent = Math.max(0, values.length-passes);
+    $('percentValue').innerHTML = `${values.length ? ((values.length-passes)/values.length*100).toFixed(1) : '0.0'}<span class="unit">%</span>`;
+    $('comparisonsValue').textContent = comparisons.toLocaleString('es-MX');
+    $('swapsValue').textContent = swaps.toLocaleString('es-MX');
+    $('timeValue').innerHTML = `${elapsed.toFixed(3)}<span class="unit">s</span>`;
+  }
+  function setStatus(text, active=false) {
+    $('statusText').textContent = text;
+    $('statusDot').className = active ? 'dot running' : 'dot';
+  }
+  function activity(action, detail) {
+    $('actionText').textContent = action;
+    $('detailText').textContent = detail;
+  }
+  function progress(p) {
+    $('progressBar').style.width = `${Math.max(0,Math.min(100,p))}%`;
+    $('progressText').textContent = `${Math.round(p)}%`;
+  }
+  function tone(kind='compare') {
+    if (!soundOn) return;
+    try {
+      audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      const now = audioCtx.currentTime;
+      osc.type = 'sine';
+      osc.frequency.value = kind==='swap' ? 760 : kind==='pass' ? 1040 : 470;
+      gain.gain.setValueAtTime(0.0001,now);
+      gain.gain.exponentialRampToValueAtTime(kind==='swap'?.075:.045,now+.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001,now+(kind==='pass'?.14:.065));
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now); osc.stop(now+(kind==='pass'?.15:.075));
+    } catch(e) {}
+  }
+  const sleep = ms => new Promise(resolve => setTimeout(resolve,ms));
+  function clearHighlights() { bars.forEach(b => b.className='bar'); }
+  function markSorted() { bars.forEach(b => b.className='bar sorted'); }
+  function refreshBar(i) {
+    bars[i].style.height = `${Math.max(1.2, values[i]/10000*94)}%`;
+    bars[i].title = `Posición ${i+1}: ${values[i]}`;
+  }
+  function resetMetrics() {
+    comparisons=0; swaps=0; passes=0; elapsed=0; updateMetrics(); progress(0);
+  }
+  function newArray() {
+    const n = Math.max(2,Math.min(100,parseInt($('count').value,10)||100));
+    $('count').value=n;
+    values=makeData(n); render(); resetMetrics();
+    activity('Lista generada',`${n} números aleatorios entre 1 y 10,000.`);
+    setStatus('En espera'); $('runBtn').disabled=false; $('runBtn').textContent='▶ Ejecutar';
+  }
+  async function run() {
+    if (running) return;
+    newArray();
+    running=true; stopRequested=false;
+    $('runBtn').disabled=true; $('resetBtn').disabled=true;
+    setStatus('Ordenando',true);
+    const n=values.length, delay=Number($('speed').value);
+    startTime=performance.now();
+    const maxComparisons=n*(n-1); // límite superior del algoritmo tal como fue escrito
+    let completedComparisons=0;
+    for (let i=0;i<n;i++) {
+      let bandera=0;
+      passes++;
+      activity(`Pasada ${passes}`,`Comienza el recorrido completo de ${n-1} comparaciones.`);
+      tone('pass'); updateMetrics();
+      await sleep(Math.min(delay,120));
+      for (let j=0;j<n-1;j++) {
+        if (stopRequested) break;
+        clearHighlights();
+        bars[j].classList.add('compare'); bars[j+1].classList.add('compare');
+        comparisons++; completedComparisons++;
+        activity('Comparando elementos',`Posiciones ${j+1} y ${j+2}: ${values[j]} ${values[j]>values[j+1]?'>':'≤'} ${values[j+1]}.`);
+        if (values[j]>values[j+1]) {
+          bars[j].classList.remove('compare'); bars[j+1].classList.remove('compare');
+          bars[j].classList.add('swap'); bars[j+1].classList.add('swap');
+          const aux=values[j]; values[j]=values[j+1]; values[j+1]=aux;
+          refreshBar(j); refreshBar(j+1);
+          bandera=1; swaps++; tone('swap');
+          activity('Intercambio realizado',`Se intercambiaron ${values[j+1]} y ${values[j]}.`);
+        } else {
+          tone('compare');
+        }
+        elapsed=(performance.now()-startTime)/1000; updateMetrics();
+        progress(completedComparisons/maxComparisons*100);
+        if (delay>0) await sleep(delay);
+        if (stopRequested) break;
+      }
+      if (stopRequested) break;
+      clearHighlights();
+      if (bandera===0) {
+        activity('Ordenamiento terminado','La pasada finalizó sin intercambios: bandera = 0.');
+        break;
+      }
+    }
+    elapsed=(performance.now()-startTime)/1000;
+    updateMetrics();
+    if (!stopRequested) {
+      markSorted(); progress(100);
+      activity('¡Arreglo ordenado!',`${swaps.toLocaleString('es-MX')} intercambios en ${passes} pasadas.`);
+      setStatus('Completado');
+    } else {
+      setStatus('Detenido'); activity('Ejecución detenida','Puedes reiniciar para generar otra lista.');
+    }
+    running=false; $('runBtn').disabled=false; $('runBtn').textContent='▶ Ejecutar de nuevo'; $('resetBtn').disabled=false;
+  }
+  $('runBtn').addEventListener('click',run);
+  $('resetBtn').addEventListener('click',() => { if(running)return; newArray(); });
+  $('soundBtn').addEventListener('click',() => {
+    soundOn=!soundOn;
+    $('soundBtn').textContent=`♫ Sonido: ${soundOn?'activado':'desactivado'}`;
+    if(soundOn) tone('pass');
+  });
+  $('count').addEventListener('change',() => { if(!running)newArray(); });
+  $('speed').addEventListener('change',()=>{});
+  newArray();
+})();
+</script>
+</body>
+</html>
